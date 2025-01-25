@@ -30,10 +30,10 @@ with open("./src/index.html", "r") as f:
 class DataProcessor:
     def __init__(self):
         self.data_buffer = []
-        self.file_path = "data_log.csv"  #starting name
+        self.file_path = "./data/data_log.csv"  #starting name
 
     def set_filename(self, filename):
-        self.file_path = f"{filename}.csv"
+        self.file_path = f"./data/{filename}.csv"
 
     def add_data(self, data):
         self.data_buffer.append(data)
