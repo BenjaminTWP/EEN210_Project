@@ -68,6 +68,6 @@ void loop()
     client.sendTXT(payload);
     client.loop();
 
-    delay(500); // Adjust delay as needed
+    delay(250); // Adjust delay as needed
   }
 }
