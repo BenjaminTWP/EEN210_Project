@@ -1,0 +1,12 @@
+html{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+/* Add some CSS for styling the scrollable area */
+#messages {
+overflow-y: scroll;
+height: 25vh;
+/* Limit the height of the scrollable area */
+width: 60vw;
+/* Limit the height of the scrollable area */
+}

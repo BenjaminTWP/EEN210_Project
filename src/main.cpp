@@ -3,14 +3,15 @@
 #include <WiFi.h>
 #include <WebSocketsClient.h>
 #include <Adafruit_BusIO_Register.h>
+#include "credentials.h"
 
 // Public internet, allow port in firewall
 // Replace with your network credentials
-const char *ssid = "your WiFi SSID";
-const char *password = "your Passoword";
+//const char *ssid = "Name of internet connection goes here";
+//const char *password = "Password goes here";
 
 // Replace with your WebSocket server address
-const char *webSocketServer = "your WiFi IP Address";
+//const char *webSocketServer = "ipv-adress goes here";
 
 const int webSocketPort = 8000;
 const char *webSocketPath = "/";
@@ -67,6 +68,6 @@ void loop()
     client.sendTXT(payload);
     client.loop();
 
-    delay(10); // Adjust delay as needed
+    delay(500); // Adjust delay as needed
   }
 }

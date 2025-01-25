@@ -8,6 +8,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 from fastapi import WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 # Enable CORS for all origins
@@ -19,6 +20,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the 'static' folder to serve HTML, CSS, JS, and images
+app.mount("/static", StaticFiles(directory="./src/static"), name="static")
+
 with open("./src/index.html", "r") as f:
     html = f.read()
 
@@ -26,15 +30,16 @@ with open("./src/index.html", "r") as f:
 class DataProcessor:
     def __init__(self):
         self.data_buffer = []
+        self.file_path = "data_log.csv"  #starting name
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.file_path = f"fall_data_{timestamp}.csv"
+    def set_filename(self, filename):
+        self.file_path = f"{filename}.csv"
 
     def add_data(self, data):
         self.data_buffer.append(data)
 
     def save_to_csv(self):
-        df = pd.DataFrame.from_dict(self.data_buffer)
+        df = pd.DataFrame(self.data_buffer)
         self.data_buffer = []
         # Append the new row to the existing DataFrame
         df.to_csv(
@@ -43,7 +48,8 @@ class DataProcessor:
             mode="a",
             header=not os.path.exists(self.file_path),
         )
-        # print(f"DataFrame saved to {self.file_path}")
+        print(f"Data saved to {self.file_path}")
+
 
 
 data_processor = DataProcessor()
@@ -66,6 +72,7 @@ def predict_label(model=None, data=None):
 class WebSocketManager:
     def __init__(self):
         self.active_connections = set()
+        self.recording = False  # Track recording state
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -100,32 +107,40 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            print("hi")
+            #print("hi")
 
             # Broadcast the incoming data to all connected clients
             json_data = json.loads(data)
 
-            # use raw_data for prediction
+            # use raw_data for prediction. NOT currently used
             raw_data = list(json_data.values())
 
-            # Add time stamp to the last received data
-            json_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if "action" in json_data:
+                if json_data["action"] == "start":
+                    websocket_manager.recording = True
+                    data_processor.set_filename(json_data.get("filename", "data_log"))
+                    print("Started recording to:", data_processor.file_path)
+                elif json_data["action"] == "stop":
+                    websocket_manager.recording = False
+                    data_processor.save_to_csv()
+                    print("Stopped recording and saved data.")
+                continue
 
-            data_processor.add_data(json_data)
-            # this line save the recent 100 samples to the CSV file. you can change 100 if you want.
-            if len(data_processor.data_buffer) >= 100:
-                data_processor.save_to_csv()
-
-            """  
+            ''' Old code for predictions 
             In this line we use the model to predict the labels.
             Right now it only return 0.
             You need to modify the predict_label function to return the true label
             """
             label = predict_label(model, raw_data)
             json_data["label"] = label
+            '''
 
+            # Add time stamp to the last received data
+            json_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if websocket_manager.recording:
+                data_processor.add_data(json_data)
             # print the last data in the terminal
-            print(json_data)
+            #print(json_data)
 
             # broadcast the last data to webpage
             await websocket_manager.broadcast_message(json.dumps(json_data))
