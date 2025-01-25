@@ -104,11 +104,26 @@ var closeButton = document.getElementById('closeButton');
     close();
 });
 
+function clearData(){
+    gyroChart.data.labels = [];  
+    gyroChart.data.datasets.forEach(dataset => {
+        dataset.data = []; 
+    });
+
+    accelChart.data.labels = [];  
+    accelChart.data.datasets.forEach(dataset => {
+        dataset.data = []; 
+    });
+
+    accelChart.update();
+    gyroChart.update(); 
+}
 
 // START, CLEAR AND STOP BUTTON
 var startButton = document.getElementById("startButton");
 startButton.addEventListener("click", function () {
     if (!recordData){
+        clearData();
         startButton.style.backgroundColor = "red";
         stopButton.style.backgroundColor = "greenyellow"
         clearButton.style.backgroundColor = "red"
@@ -134,17 +149,6 @@ stopButton.addEventListener("click", function () {
 var clearButton = document.getElementById("clearButton");
 clearButton.addEventListener("click", function (){
     if (!recordData){
-        gyroChart.data.labels = [];  
-        gyroChart.data.datasets.forEach(dataset => {
-            dataset.data = []; 
-        });
-    
-        accelChart.data.labels = [];  
-        accelChart.data.datasets.forEach(dataset => {
-            dataset.data = []; 
-        });
-    
-        accelChart.update();
-        gyroChart.update(); 
+        clearData();
     }
 });
