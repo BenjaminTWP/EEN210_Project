@@ -47,7 +47,7 @@ var data = null;
 var ipAddress = "192.168.27.220";
 
 var ws = new WebSocket("ws://" + ipAddress + ":8000/ws"); // Create a new WebSocket
-console.log("we do get here")
+
 ws.onopen = function (event) {
     console.log("WebSocket state:", ws.readyState);  // This will log "OPEN"
 };
@@ -99,7 +99,7 @@ ws.onclose = function (event) {
 };
             
 var closeButton = document.getElementById('closeButton');
-    closeButton.addEventListener('click', function () {
+closeButton.addEventListener('click', function () {
     // Call the close function when the button is clicked
     close();
 });
