@@ -44,7 +44,7 @@ var recordData = false;
 
 var data = null;
 
-var ipAddress = "192.168.27.220";
+var ipAddress = "192.168.224.220";
 
 var ws = new WebSocket("ws://" + ipAddress + ":8000/ws"); // Create a new WebSocket
 
