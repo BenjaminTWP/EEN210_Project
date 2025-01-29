@@ -151,4 +151,6 @@ clearButton.addEventListener("click", function (){
     if (!recordData){
         clearData();
     }
+    var ul = document.getElementById("messages");
+    ul.innerHTML = '';
 });
