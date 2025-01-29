@@ -1,28 +1,33 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
- 
-all_data = np.loadtxt("./fall_data_20231122_155653.csv",
-                 delimiter=";", dtype=str)
+all_data_df = pd.read_csv("./data/still/still_b_1.csv")
+all_data_df = all_data_df.iloc[0:-1, 0:-1].astype(float)
+all_data = all_data_df.to_numpy()
 
+accel_x = all_data[1:-1, 0].astype(float)
+accel_y = all_data[1:-1, 1].astype(float)
+accel_z = all_data[1:-1, 2].astype(float)
 
+position_x = all_data[1:-1, 3].astype(float)
+position_y = all_data[1:-1, 4].astype(float)
+position_z = all_data[1:-1, 5].astype(float)
 
-labels = all_data[1:-1, 0]
-
-accel_x = all_data[1:-1, 1].astype(float)
-accel_y = all_data[1:-1, 2].astype(float)
-accel_z = all_data[1:-1, 3].astype(float)
-
-position_x = all_data[1:-1, 4].astype(float)
-position_y = all_data[1:-1, 5].astype(float)
-position_z = all_data[1:-1, 6].astype(float)
-
-
-plt.plot(labels, position_x, label="Position X")
-plt.plot(labels, position_y, label="Position Y")
-plt.plot(labels, position_z, label="Position Z")
-
+plt.plot(position_x, label="Position X")
+plt.plot(position_y, label="Position Y")
+plt.plot(position_z, label="Position Z")
 plt.xticks(rotation=45)
+plt.legend()
+plt.grid()
 plt.tight_layout()
+plt.show()
 
+plt.plot(accel_x, label="Acc X")
+plt.plot(accel_y, label="Acc Y")
+plt.plot(accel_z, label="Acc Z")
+plt.xticks(rotation=45)
+plt.legend()
+plt.grid()
+plt.tight_layout()
 plt.show()
