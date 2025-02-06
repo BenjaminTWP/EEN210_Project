@@ -96,5 +96,5 @@ matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope
 #plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
 
-plot("./data/walk/walk_t_5.csv")
+plot("./data/bend/bend_v_5.csv")
 #verages("./data/still/still_b_1.csv")
