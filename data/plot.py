@@ -49,8 +49,11 @@ def extract_data(path: str, column1, column2, column3):
         file_names = [f for f in os.listdir(folder_path) if f.endswith('.csv')] 
         for file in file_names:
             df = pd.read_csv(os.path.join(folder_path, file))
-            means = df[[column1, column2, column3]].std()  #### WE CHANGE HERE, .std, .mean, .var
+            means = df[[column1, column2, column3]].mean()  #### WE CHANGE HERE, .std, .mean, .var
+
             labels.append(folder)
+
+
 
             data[0].append(means[column1])
             data[1].append(means[column2])
@@ -74,7 +77,7 @@ def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
             data[2][i],
             color=label_color_map[labels[i]],
             label=labels[i] if labels[:i].count(labels[i]) == 0 else "",
-            s=50
+            s=20
         )
 
     ax.set_xlabel(xlabel)
@@ -93,5 +96,5 @@ matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope
 plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
 
-#plot("./data/walk/walk_v_4.csv")
+#plot("./data/fall/fall_forward_v_1.csv")
 #verages("./data/still/still_b_1.csv")
