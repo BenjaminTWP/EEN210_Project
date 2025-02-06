@@ -38,27 +38,7 @@ def averages(path:str):
     all_data_df = pd.read_csv(path)
     print(all_data_df.describe())
 
-def folder_average(path):
-    for folder in os.listdir(path):  
-        folder_path = os.path.join(path, folder)
-        
-        if not os.path.isdir(folder_path):  
-            continue
+    
 
-        print(f"Processing folder: {folder}")
-
-        file_names = [f for f in os.listdir(folder_path) if f.endswith('.csv')] 
-
-        if not file_names:
-            print(f"No CSV files in {folder}")
-            continue  
-
-        df = pd.concat([pd.read_csv(os.path.join(folder_path, f)) for f in file_names], ignore_index=True)
-
-        means = df.describe().loc["mean"]
-        print(means)
-
-folder_average("./data")
-
-plot("./data/fall/fall_back_t_1.csv")
+#plot("./data/fall/fall_side_v_4.csv")
 #verages("./data/still/still_b_1.csv")
