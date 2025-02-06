@@ -90,11 +90,10 @@ def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
 
 
 matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
-plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Acceleration")
+#plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Acceleration")
 
 matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
-plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
+#plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
-
-#plot("./data/fall/fall_forward_v_1.csv")
+plot("./data/walk/walk_h_5.csv")
 #verages("./data/still/still_b_1.csv")
