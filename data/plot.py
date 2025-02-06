@@ -61,7 +61,7 @@ def extract_data(path: str, column1, column2, column3):
 
     return data, labels
 
-def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
+#def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
@@ -95,5 +95,6 @@ matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acc
 matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
 #plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
-plot("./data/walk/walk_h_5.csv")
+
+plot("./data/bend/bend_v_5.csv")
 #verages("./data/still/still_b_1.csv")
