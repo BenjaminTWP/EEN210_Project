@@ -61,7 +61,7 @@ def extract_data(path: str, column1, column2, column3):
 
     return data, labels
 
-def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
+#def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
