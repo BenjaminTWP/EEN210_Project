@@ -44,14 +44,25 @@ def extract_data(path: str, column1, column2, column3):
         if not os.path.isdir(folder_path):  
             continue
 
-        #print(f"Processing: {folder_path}")
+        print(f"Processing: {folder_path}")
 
         file_names = [f for f in os.listdir(folder_path) if f.endswith('.csv')] 
         for file in file_names:
             df = pd.read_csv(os.path.join(folder_path, file))
+
+            df[[column1, column2, column3]] = df[[column1, column2, column3]] * 9.82 / 16384  
+
+            processed_file_path = os.path.join(folder_path, f"processed_{file}")
+            df.to_csv(processed_file_path, index=False)
+
+            print(f"Saved: {processed_file_path}")
+
             means = df[[column1, column2, column3]].mean()  #### WE CHANGE HERE, .std, .mean, .var
 
-            labels.append(folder)
+            if folder == "fall":
+                labels.append("fall")
+            else:
+                labels.append("other")
 
 
 
@@ -61,7 +72,7 @@ def extract_data(path: str, column1, column2, column3):
 
     return data, labels
 
-#def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
+def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
@@ -92,9 +103,9 @@ def extract_data(path: str, column1, column2, column3):
 matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
 #plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Acceleration")
 
-matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
+#matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
 #plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
 
-plot("./data/bend/bend_v_5.csv")
+#plot("./data/bend/bend_v_5.csv")
 #verages("./data/still/still_b_1.csv")
