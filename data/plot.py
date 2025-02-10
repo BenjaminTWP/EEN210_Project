@@ -50,12 +50,10 @@ def extract_data(path: str, column1, column2, column3):
         for file in file_names:
             df = pd.read_csv(os.path.join(folder_path, file))
 
-            df[[column1, column2, column3]] = df[[column1, column2, column3]] / 131
-
-            processed_file_path = os.path.join(folder_path, f"{file}")
-            df.to_csv(processed_file_path, index=False)
-
-            print(f"Saved: {processed_file_path}")
+            #df[[column1, column2, column3]] = df[[column1, column2, column3]] / 131
+            #processed_file_path = os.path.join(folder_path, f"{file}")
+            #df.to_csv(processed_file_path, index=False)
+            #print(f"Saved: {processed_file_path}")
 
             means = df[[column1, column2, column3]].mean()  #### WE CHANGE HERE, .std, .mean, .var
 
