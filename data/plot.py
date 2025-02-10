@@ -50,9 +50,9 @@ def extract_data(path: str, column1, column2, column3):
         for file in file_names:
             df = pd.read_csv(os.path.join(folder_path, file))
 
-            df[[column1, column2, column3]] = df[[column1, column2, column3]] * 9.82 / 16384  
+            df[[column1, column2, column3]] = df[[column1, column2, column3]] / 131
 
-            processed_file_path = os.path.join(folder_path, f"processed_{file}")
+            processed_file_path = os.path.join(folder_path, f"{file}")
             df.to_csv(processed_file_path, index=False)
 
             print(f"Saved: {processed_file_path}")
@@ -100,10 +100,10 @@ def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
     plt.show()
 
 
-matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
+#matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
 #plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Acceleration")
 
-#matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
+matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
 #plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
 
