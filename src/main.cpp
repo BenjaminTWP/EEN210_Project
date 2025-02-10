@@ -54,6 +54,15 @@ void loop()
     mpu.getAcceleration(&ax, &ay, &az);
     mpu.getRotation(&gx, &gy, &gz);
 
+    // Normalize sensor data to units of g
+    ax = 9.81 * ax/18384;
+    ay = 9.81 * ay/18384;
+    az = 9.81 * az/18384;
+    
+    gx = gx/131;
+    gy = gy/131;
+    gz = gz/131;
+
     // Convert data to a JSON string
     String payload = "{\"acceleration_x\":" + String(ax) +
                      ",\"acceleration_y\":" + String(ay) +
