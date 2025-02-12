@@ -55,21 +55,21 @@ void loop()
     mpu.getRotation(&gx, &gy, &gz);
 
     // Normalize sensor data to units of g
-    ax = 9.81 * ax/18384;
-    ay = 9.81 * ay/18384;
-    az = 9.81 * az/18384;
+    double Dax = 9.82 * ax/16384;
+    double Day = 9.82 * ay/16384;
+    double Daz = 9.82 * az/16384;
     
-    gx = gx/131;
-    gy = gy/131;
-    gz = gz/131;
+    double Dgx = gx/131;
+    double Dgy = gy/131;
+    double Dgz = gz/131;
 
     // Convert data to a JSON string
-    String payload = "{\"acceleration_x\":" + String(ax) +
-                     ",\"acceleration_y\":" + String(ay) +
-                     ",\"acceleration_z\":" + String(az) +
-                     ",\"gyroscope_x\":" + String(gx) +
-                     ",\"gyroscope_y\":" + String(gy) +
-                     ",\"gyroscope_z\":" + String(gz) + "}";
+    String payload = "{\"acceleration_x\":" + String(Dax, 3) +
+                     ",\"acceleration_y\":" + String(Day, 3) +
+                     ",\"acceleration_z\":" + String(Daz, 3) +
+                     ",\"gyroscope_x\":" + String(Dgx, 3) +
+                     ",\"gyroscope_y\":" + String(Dgy, 3) +
+                     ",\"gyroscope_z\":" + String(Dgz, 3) + "}";
 
     Serial.println("Skiikar....");
     // server address, port and URL
