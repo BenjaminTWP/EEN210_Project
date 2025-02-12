@@ -1,7 +1,9 @@
 import os
 import json
 from datetime import datetime
-
+import numpy as np
+from collections import deque
+from LSTM import LSTM_model
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI, WebSocket
@@ -9,6 +11,8 @@ from fastapi.responses import HTMLResponse
 from fastapi import WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+import asyncio
 
 app = FastAPI()
 # Enable CORS for all origins
@@ -29,8 +33,25 @@ with open("./src/index.html", "r") as f:
 
 class DataProcessor:
     def __init__(self):
+        self.data_window = deque()
+        self.data_window_length = 0
         self.data_buffer = []
         self.file_path = "./data/data_log.csv"  #starting name
+
+    def add_window_data(self, data):
+        self.data_window.append(data)
+        self.data_window_length += 1
+
+    def clear_window(self):
+        WINDOW_ENTRIES = 10
+        for i in range(WINDOW_ENTRIES):
+            self.data_window.pop()
+            self.data_window_length -= 1
+
+    def get_evaluation_data(self):
+        eval_data = pd.DataFrame(self.data_window)
+        eval_data = eval_data.drop(["timestamp"], axis=1)
+        return eval_data
 
     def set_filename(self, filename):
         self.file_path = f"./data/{filename}.csv"
@@ -55,18 +76,21 @@ class DataProcessor:
 data_processor = DataProcessor()
 
 
+lstm_labels = {0: 'bend', 1: 'fall', 2: 'sit', 3: 'still', 4: 'walk'}
 def load_model():
     # you should modify this function to return your model
-    model = None
+    model, scaler = LSTM_model() 
+    print("Model Loaded Successfully")
     return model
 
 
-def predict_label(model=None, data=None):
-    # you should modify this to return the label
-    if model is not None:
-        label = model(data)
-        return label
-    return 0
+async def predict_async(data):
+    return await asyncio.to_thread(predict_label, model, data)
+
+def predict_label(model, data):
+    prediction = model.predict(data)
+    print(prediction)
+    return np.argmax(prediction)
 
 
 class WebSocketManager:
@@ -93,7 +117,7 @@ class WebSocketManager:
 
 
 websocket_manager = WebSocketManager()
-model = load_model()
+model, scaler = LSTM_model()
 
 
 @app.get("/")
@@ -107,7 +131,6 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            #print("hi")
 
             # Broadcast the incoming data to all connected clients
             json_data = json.loads(data)
@@ -126,6 +149,16 @@ async def websocket_endpoint(websocket: WebSocket):
                     print("Stopped recording and saved data.")
                 continue
 
+            data_processor.add_window_data(json_data)
+
+            if data_processor.data_window_length == 50:
+                eval_data_df = data_processor.get_evaluation_data()
+                eval_data_array = eval_data_df.to_numpy().reshape(1, 50, -1)
+                #eval_data_array = scaler.transform(eval_data_array.reshape(-1, eval_data_array.shape[-1])).reshape(1, 50, -1)
+                prediction = await predict_async(eval_data_array)  # Run in separate thread
+                print(f"Predicted Label: {lstm_labels[prediction]}")
+                data_processor.clear_window()
+
             ''' Old code for predictions 
             In this line we use the model to predict the labels.
             Right now it only return 0.
@@ -134,7 +167,7 @@ async def websocket_endpoint(websocket: WebSocket):
             label = predict_label(model, raw_data)
             json_data["label"] = label
             '''
-
+            
             # Add time stamp to the last received data
             json_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             if websocket_manager.recording:
