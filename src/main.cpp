@@ -59,9 +59,9 @@ void loop()
     double Day = 9.82 * ay/16384;
     double Daz = 9.82 * az/16384;
     
-    double Dgx = gx/131;
-    double Dgy = gy/131;
-    double Dgz = gz/131;
+    double Dgx = (double) gx / 131.0;
+    double Dgy = (double) gy / 131.0;
+    double Dgz = (double) gz / 131.0;
 
     // Convert data to a JSON string
     String payload = "{\"acceleration_x\":" + String(Dax, 3) +
