@@ -4,8 +4,10 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Masking
+from tensorflow.keras.layers import LSTM, Dense, Masking, Dropout
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 # Path to the main data folder
 data_root = "data"
@@ -61,9 +63,7 @@ print(f"Final dataset shape: {sequences.shape}")  # (num_samples, max_time_steps
 print(f"Labels shape: {encoded_labels.shape}")  # (num_samples, num_classes)
 
 # Split data into training and testing sets
-train_size = int(len(sequences) * 0.8)
-X_train, X_test = sequences[:train_size], sequences[train_size:]
-y_train, y_test = encoded_labels[:train_size], encoded_labels[train_size:]
+X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=42)
 
 print(f"Training set: {X_train.shape}, {y_train.shape}")
 print(f"Testing set: {X_test.shape}, {y_test.shape}")
@@ -71,15 +71,24 @@ print(f"Testing set: {X_test.shape}, {y_test.shape}")
 # Define the LSTM model
 model = Sequential()
 model.add(Masking(mask_value=0.0, input_shape=(X_train.shape[1], X_train.shape[2])))  # Masking padded values
-model.add(LSTM(64, activation='relu'))
+model.add(LSTM(128, return_sequences=True, activation='tanh'))
+model.add(Dropout(0.5))
+model.add(LSTM(64, activation='tanh'))
+model.add(Dropout(0.5))
 model.add(Dense(y_train.shape[1], activation='softmax'))
 
 # Compile the model
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 # Train the model
-model.fit(X_train, y_train, epochs=50, batch_size=8, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
 
 # Evaluate the model
 loss, accuracy = model.evaluate(X_test, y_test)
 print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
+
+# Classification report
+y_pred = model.predict(X_test)
+y_pred_classes = np.argmax(y_pred, axis=1)
+y_true_classes = np.argmax(y_test, axis=1)
+print(classification_report(y_true_classes, y_pred_classes))
