@@ -70,7 +70,7 @@ def train_model(model, X_train, X_test, y_train, y_test):
 
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=30, mode='max', restore_best_weights=True)
 
-    model.fit(X_train, y_train, epochs=1, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint, early_stopping])
+    model.fit(X_train, y_train, epochs=60, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint, early_stopping])
 
 
 def evaluate_model(model, X_test, y_test):
