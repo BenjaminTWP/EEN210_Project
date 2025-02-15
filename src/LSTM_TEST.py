@@ -6,6 +6,7 @@ from tensorflow.keras.layers import LSTM, Dense, Masking, Dropout # type: ignore
 from sklearn.metrics import confusion_matrix
 from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.models import load_model # type: ignore
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import Input # type: ignore
 from sklearn.preprocessing import LabelEncoder
@@ -35,7 +36,12 @@ def data_and_label_extraction():
                     data, _ = df_vectorized(df)
                     sequences.append(data)
 
-                    labels.append('fall' if folder_name == 'fall' else 'other')
+                    if folder_name == "fall":
+                        labels.append("fall")
+                    elif folder_name == "still":
+                        labels.append("still")
+                    else:
+                        labels.append("other")
 
     sequences = np.array(sequences, dtype=np.float32)
 
@@ -52,10 +58,9 @@ def encode_labels(labels:list):
 def configure_model(y_train):
     model = Sequential([
         Input(shape=(50, 1)),
-        Masking(mask_value=0.0),
-        LSTM(128, return_sequences=True, activation='tanh'),
-        Dropout(0.3),
-        LSTM(64, activation='tanh'),
+        LSTM(64, return_sequences=True, activation='tanh'),
+        Dropout(0.4),
+        LSTM(32, activation='tanh'),
         Dropout(0.3),
         Dense(y_train.shape[1], activation='softmax')
     ])
@@ -66,11 +71,9 @@ def train_model(model, X_train, X_test, y_train, y_test):
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-    checkpoint = ModelCheckpoint('./model/best_val_model.h5', monitor='val_loss', save_best_only=True, mode='max')
+    checkpoint = ModelCheckpoint('./model/best_val_model.h5', monitor='val_accuracy', save_best_only=True, mode='max')
 
-    early_stopping = EarlyStopping(monitor='val_accuracy', patience=30, mode='max', restore_best_weights=True)
-
-    model.fit(X_train, y_train, epochs=60, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint, early_stopping])
+    model.fit(X_train, y_train, epochs=90, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint])
 
 
 def evaluate_model(model, X_test, y_test):
@@ -105,7 +108,11 @@ def model_implementation():
 
     train_model(model, X_train, X_test, y_train, y_test)
 
-    y_pred, y_true = evaluate_model(model, X_test, y_test)
+    best_model = load_model("./model/best_val_model.h5")
+    best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+
+    y_pred, y_true = evaluate_model(best_model, X_test, y_test)
 
     plot_confusion_matrix(y_pred, y_true, label_encoder)
 
