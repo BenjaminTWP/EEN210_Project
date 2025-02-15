@@ -55,10 +55,10 @@ void loop()
     mpu.getRotation(&gx, &gy, &gz);
 
     // Normalize sensor data to units of g
-    double Dax = 9.82 * ax/16384;
-    double Day = 9.82 * ay/16384;
-    double Daz = 9.82 * az/16384;
-    
+    double Dax = (9.82 * (double) ax) / 16384.0;
+    double Day = (9.82 * (double) ay) / 16384.0;
+    double Daz = (9.82 * (double) az) / 16384.0;
+
     double Dgx = (double) gx / 131.0;
     double Dgy = (double) gy / 131.0;
     double Dgz = (double) gz / 131.0;

@@ -3,9 +3,10 @@ import json
 from datetime import datetime
 import numpy as np
 from collections import deque
-from LSTM import LSTM_model
+from LSTM_TEST import LSTM_model
 import pandas as pd
 import uvicorn
+from transform import df_vectorized
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 from fastapi import WebSocketDisconnect
@@ -43,7 +44,7 @@ class DataProcessor:
         self.data_window_length += 1
 
     def clear_window(self):
-        WINDOW_ENTRIES = 10
+        WINDOW_ENTRIES = 20
         for i in range(WINDOW_ENTRIES):
             self.data_window.pop()
             self.data_window_length -= 1
@@ -75,8 +76,6 @@ class DataProcessor:
 
 data_processor = DataProcessor()
 
-
-lstm_labels = {0: 'bend', 1: 'fall', 2: 'sit', 3: 'still', 4: 'walk'}
 def load_model():
     # you should modify this function to return your model
     model, scaler = LSTM_model() 
@@ -152,12 +151,22 @@ async def websocket_endpoint(websocket: WebSocket):
             data_processor.add_window_data(json_data)
 
             if data_processor.data_window_length == 50:
+                
                 eval_data_df = data_processor.get_evaluation_data()
-                eval_data_array = eval_data_df.to_numpy().reshape(1, 50, -1)
-                #eval_data_array = scaler.transform(eval_data_array.reshape(-1, eval_data_array.shape[-1])).reshape(1, 50, -1)
-                prediction = await predict_async(eval_data_array)  # Run in separate thread
-                print(f"Predicted Label: {lstm_labels[prediction]}")
+
+                # Get acceleration magnitude from df_vectorized()
+                acc_magnitude, _ = df_vectorized(eval_data_df)
+
+                # Reshape to (1, 50, 1) because the model expects this shape
+                acc_magnitude = np.array(acc_magnitude).reshape(1, 50, 1)
+
+                # Predict
+                prediction = await predict_async(acc_magnitude)
+                predicted_label = 'fall' if prediction == 0 else 'other'
+
+                print(f"Predicted Label: {predicted_label}")
                 data_processor.clear_window()
+
 
             ''' Old code for predictions 
             In this line we use the model to predict the labels.

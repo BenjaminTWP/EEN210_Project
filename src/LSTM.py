@@ -11,6 +11,7 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+from transform import df_vectorized
 
 
 

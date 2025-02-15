@@ -62,7 +62,7 @@ def extract_data():
             second_half = temp_df.iloc[25:]
 
             for split_df in [first_half, second_half]:
-                statistics = split_df.std().to_frame().T 
+                statistics = split_df.mean().to_frame().T 
                 statistics['fall'] = label 
                 X_data = pd.concat([X_data, statistics], ignore_index=True)
 
