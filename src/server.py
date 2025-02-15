@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from tensorflow.keras.models import load_model # type: ignore
 import numpy as np
 from collections import deque
 from LSTM_TEST import LSTM_model
@@ -73,12 +74,12 @@ class DataProcessor:
         print(f"Data saved to {self.file_path}")
 
 
-
 data_processor = DataProcessor()
+model = load_model("./model/best_val_model.h5")
 
-def load_model():
+def load_model_nah():
     # you should modify this function to return your model
-    model, scaler = LSTM_model() 
+    model = load_model()
     print("Model Loaded Successfully")
     return model
 
@@ -116,8 +117,6 @@ class WebSocketManager:
 
 
 websocket_manager = WebSocketManager()
-model, scaler = LSTM_model()
-
 
 @app.get("/")
 async def get():

@@ -1,98 +1,113 @@
 import os
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Masking, Dropout
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping # type: ignore
+from tensorflow.keras.layers import LSTM, Dense, Masking, Dropout # type: ignore
+from sklearn.metrics import confusion_matrix
+from tensorflow.keras.utils import to_categorical # type: ignore
+from tensorflow.keras.models import Sequential # type: ignore
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras import Input # type: ignore
+from sklearn.preprocessing import LabelEncoder
+from transform import df_vectorized
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-# Path to the main data folder
-data_root = "data"
-
-# Lists to store sequences and labels
-sequences = []
-labels = []
-
-# Loop through each folder (class label)
-for folder_name in os.listdir(data_root):
-    folder_path = os.path.join(data_root, folder_name)
-
-    if os.path.isdir(folder_path):
-        for file_name in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, file_name)
-
-            if file_name.endswith(".csv"):
-                df = pd.read_csv(file_path)
-
-                # Convert all data to numeric
-                df = df.apply(pd.to_numeric, errors='coerce').fillna(0)
-
-                # Calculate acceleration magnitude
-                df['acceleration_magnitude'] = np.sqrt(
-                    df['acceleration_x']**2 + df['acceleration_y']**2 + df['acceleration_z']**2
-                )
-
-                # Extract only the magnitude column
-                data = df[['acceleration_magnitude']].values
-
-                # Store sequence and binary label
-                sequences.append(data)
-                labels.append('fall' if folder_name == 'fall' else 'other')
-
-# Convert labels to numerical format
-label_encoder = LabelEncoder()
-encoded_labels = label_encoder.fit_transform(labels)
-encoded_labels = to_categorical(encoded_labels)
-
-# Convert sequences to numpy array
-sequences = np.array(sequences, dtype=np.float32)
-
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
-
-# Define the LSTM model
-model = Sequential()
-model.add(Masking(mask_value=0.0, input_shape=(50, 1)))
-model.add(LSTM(128, return_sequences=True, activation='tanh'))
-model.add(Dropout(0.3))
-model.add(LSTM(64, activation='tanh'))
-model.add(Dropout(0.3))
-model.add(Dense(y_train.shape[1], activation='softmax'))
-
-# Compile the model
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+import pandas as pd
+import numpy as np
 
 
-checkpoint = ModelCheckpoint('best_model.h5', monitor='val_loss', save_best_only=True, mode='max')
-early_stopping = EarlyStopping(monitor='val_accuracy', patience=30, mode='max', restore_best_weights=True)
+def data_and_label_extraction():
+    data_root = "data"
+    sequences = []
+    labels = []
 
-model.fit(X_train, y_train, epochs=60, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint, early_stopping])
+    for folder_name in os.listdir(data_root):
+        folder_path = os.path.join(data_root, folder_name)
 
-# Evaluate the model
-loss, accuracy = model.evaluate(X_test, y_test)
-print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
+        if os.path.isdir(folder_path):
 
-# Classification report
-y_pred = model.predict(X_test)
-y_pred_classes = np.argmax(y_pred, axis=1)
-y_true_classes = np.argmax(y_test, axis=1)
-print(classification_report(y_true_classes, y_pred_classes))
+            for file_name in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, file_name)
 
-# Confusion matrix
-cm = confusion_matrix(y_true_classes, y_pred_classes)
-class_names = label_encoder.classes_
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
-plt.xlabel("Predicted")
-plt.ylabel("True")
-plt.title("Confusion Matrix")
-plt.show()
+                if file_name.endswith(".csv"):
+                    df = pd.read_csv(file_path)
+                    
+                    data, _ = df_vectorized(df)
+                    sequences.append(data)
+
+                    labels.append('fall' if folder_name == 'fall' else 'other')
+
+    sequences = np.array(sequences, dtype=np.float32)
+
+    return labels, sequences
 
 
-def LSTM_model():
-    return model, None
+def encode_labels(labels:list):
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(labels)
+    encoded_labels = to_categorical(encoded_labels)
+    return encoded_labels, label_encoder
+
+
+def configure_model(y_train):
+    model = Sequential([
+        Input(shape=(50, 1)),
+        Masking(mask_value=0.0),
+        LSTM(128, return_sequences=True, activation='tanh'),
+        Dropout(0.3),
+        LSTM(64, activation='tanh'),
+        Dropout(0.3),
+        Dense(y_train.shape[1], activation='softmax')
+    ])
+    return model
+
+
+def train_model(model, X_train, X_test, y_train, y_test):
+
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    checkpoint = ModelCheckpoint('./model/best_val_model.h5', monitor='val_loss', save_best_only=True, mode='max')
+
+    early_stopping = EarlyStopping(monitor='val_accuracy', patience=30, mode='max', restore_best_weights=True)
+
+    model.fit(X_train, y_train, epochs=1, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint, early_stopping])
+
+
+def evaluate_model(model, X_test, y_test):
+    loss, accuracy = model.evaluate(X_test, y_test)
+    print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
+
+    y_pred = model.predict(X_test)
+    y_pred_classes = np.argmax(y_pred, axis=1)
+    y_true_classes = np.argmax(y_test, axis=1)
+
+    return y_pred_classes, y_true_classes
+
+def plot_confusion_matrix(y_true_classes, y_pred_classes, label_encoder):
+    
+    cm = confusion_matrix(y_true_classes, y_pred_classes)
+    class_names = label_encoder.classes_
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel("Predicted")
+    plt.ylabel("True")
+    plt.title("Confusion Matrix")
+    plt.show()
+
+
+def model_implementation():
+    labels, sequences = data_and_label_extraction()
+    encoded_labels, label_encoder = encode_labels(labels)
+
+    X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
+
+    model = configure_model(y_train)
+
+    train_model(model, X_train, X_test, y_train, y_test)
+
+    y_pred, y_true = evaluate_model(model, X_test, y_test)
+
+    plot_confusion_matrix(y_pred, y_true, label_encoder)
+
+
+model_implementation()
