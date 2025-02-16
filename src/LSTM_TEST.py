@@ -52,28 +52,37 @@ def encode_labels(labels:list):
     label_encoder = LabelEncoder()
     encoded_labels = label_encoder.fit_transform(labels)
     encoded_labels = to_categorical(encoded_labels)
+    print(label_encoder.classes_)
     return encoded_labels, label_encoder
 
 
 def configure_model(y_train):
     model = Sequential([
         Input(shape=(50, 1)),
-        LSTM(64, return_sequences=True, activation='tanh'),
-        Dropout(0.4),
-        LSTM(32, activation='tanh'),
-        Dropout(0.3),
+        LSTM(64, activation='tanh'),
         Dense(y_train.shape[1], activation='softmax')
     ])
     return model
+
 
 
 def train_model(model, X_train, X_test, y_train, y_test):
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-    checkpoint = ModelCheckpoint('./model/best_val_model.h5', monitor='val_accuracy', save_best_only=True, mode='max')
+    #checkpoint = ModelCheckpoint('./model/best_val_model.h5', monitor='val_loss', save_best_only=True, mode='max')
 
-    model.fit(X_train, y_train, epochs=90, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint])
+    #model.fit(X_train, y_train, epochs=10, batch_size=16, validation_data=(X_test, y_test), callbacks=[checkpoint])
+
+
+    from sklearn.utils import class_weight
+
+    labels_numeric = np.argmax(y_train, axis=1)
+    weights = class_weight.compute_class_weight('balanced', classes=np.unique(labels_numeric), y=labels_numeric)
+    class_weights = dict(enumerate(weights))
+
+    model.fit(X_train, y_train, epochs=60, batch_size=8, validation_data=(X_test, y_test), callbacks=[], class_weight=class_weights)
+
 
 
 def evaluate_model(model, X_test, y_test):
@@ -87,6 +96,9 @@ def evaluate_model(model, X_test, y_test):
     return y_pred_classes, y_true_classes
 
 def plot_confusion_matrix(y_true_classes, y_pred_classes, label_encoder):
+    print("True class distribution:", np.bincount(y_true_classes))
+    print("Predicted class distribution:", np.bincount(y_pred_classes))
+
     
     cm = confusion_matrix(y_true_classes, y_pred_classes)
     class_names = label_encoder.classes_
@@ -108,11 +120,12 @@ def model_implementation():
 
     train_model(model, X_train, X_test, y_train, y_test)
 
-    best_model = load_model("./model/best_val_model.h5")
-    best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    #best_model = load_model("./model/best_val_model.h5")
+    #best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.save("./model/best_val_model.h5")
 
 
-    y_pred, y_true = evaluate_model(best_model, X_test, y_test)
+    y_pred, y_true = evaluate_model(model, X_test, y_test)
 
     plot_confusion_matrix(y_pred, y_true, label_encoder)
 

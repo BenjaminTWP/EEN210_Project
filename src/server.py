@@ -4,7 +4,6 @@ from datetime import datetime
 from tensorflow.keras.models import load_model # type: ignore
 import numpy as np
 from collections import deque
-from LSTM_TEST import LSTM_model
 import pandas as pd
 import uvicorn
 from transform import df_vectorized
@@ -45,7 +44,7 @@ class DataProcessor:
         self.data_window_length += 1
 
     def clear_window(self):
-        WINDOW_ENTRIES = 20
+        WINDOW_ENTRIES = 10
         for i in range(WINDOW_ENTRIES):
             self.data_window.pop()
             self.data_window_length -= 1
@@ -75,7 +74,9 @@ class DataProcessor:
 
 
 data_processor = DataProcessor()
-model = load_model("./model/best_val_model.h5")
+model = load_model("./model/bestest_model.h5")
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+labels = {0: "fall", 1: "other", 2: "still"}
 
 def load_model_nah():
     # you should modify this function to return your model
@@ -85,11 +86,13 @@ def load_model_nah():
 
 
 async def predict_async(data):
-    return await asyncio.to_thread(predict_label, model, data)
+    return predict_label(model, data)
 
 def predict_label(model, data):
     prediction = model.predict(data)
-    print(prediction)
+
+    print(f"Fall: {prediction[0][0] * 100} %, Other: {prediction[0][1] * 100} %, Still: {prediction[0][2] * 100} %")
+    #print(prediction)
     return np.argmax(prediction)
 
 
@@ -153,17 +156,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 eval_data_df = data_processor.get_evaluation_data()
 
-                # Get acceleration magnitude from df_vectorized()
                 acc_magnitude, _ = df_vectorized(eval_data_df)
 
-                # Reshape to (1, 50, 1) because the model expects this shape
                 acc_magnitude = np.array(acc_magnitude).reshape(1, 50, 1)
 
-                # Predict
                 prediction = await predict_async(acc_magnitude)
-                predicted_label = 'fall' if prediction == 0 else 'other'
 
-                print(f"Predicted Label: {predicted_label}")
+                print(f"Predicted Label: {labels[prediction]}")
                 data_processor.clear_window()
 
 
