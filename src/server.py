@@ -74,9 +74,61 @@ class DataProcessor:
 
 
 data_processor = DataProcessor()
-model = load_model("./model/bestest_model.h5")
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-labels = {0: "fall", 1: "other", 2: "still"}
+#model = load_model("./model/bestest_model.h5")
+#model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+#labels = {0: "fall", 1: "other", 2: "still"}
+
+class RuleBasedClassifier:
+
+    def __init__(self):
+        self.predictions_made = deque(maxlen=15)
+        self.last_fall_index = None
+
+    def _prepare_prediction(self, data):
+        accel_magnitude, gyro_magnitude = df_vectorized(data)
+        accel_magnitude_np = np.array(accel_magnitude)
+        gyro_magnitude_np = np.array(gyro_magnitude)
+
+        accel_std = np.std(accel_magnitude_np)
+        gyro_std = np.std(gyro_magnitude_np)
+
+        print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
+        return accel_std, gyro_std
+
+
+    
+    def predict(self, data):
+        accel_std, gyro_std = self._prepare_prediction(data)
+
+        if accel_std <= 0.5 and gyro_std <= 10:# or accel_std <= 0.20 or gyro_std <= 7.5 :
+            prediction = "still"
+        elif accel_std >= 2.0 and gyro_std >= 25:
+            prediction = "fall"
+            print("POSSIBLE FALL DETECTED")
+            self.last_fall_index = len(self.predictions_made) 
+        else:
+            prediction = "other"
+
+        self.predictions_made.append(prediction)
+
+        # check oldest fall entry
+        if self.last_fall_index is not None and self.last_fall_index == 0:
+            # Evaluate predictions after this 'fall'
+            predictions_after_fall = list(self.predictions_made)[1:]  # Everything after 'fall'
+            still_count = predictions_after_fall.count('still')
+
+            if still_count > len(predictions_after_fall) * 0.65:
+                return 'fall'
+
+            self.last_fall_index = None  # reset the fall index
+
+        # update the classificiation 
+        if self.last_fall_index is not None:
+            self.last_fall_index -= 1
+
+        return prediction
+
+model = RuleBasedClassifier()
 
 def load_model_nah():
     # you should modify this function to return your model
@@ -91,9 +143,9 @@ async def predict_async(data):
 def predict_label(model, data):
     prediction = model.predict(data)
 
-    print(f"Fall: {prediction[0][0] * 100} %, Other: {prediction[0][1] * 100} %, Still: {prediction[0][2] * 100} %")
+    #print(f"Fall: {prediction[0][0] * 100} %, Other: {prediction[0][1] * 100} %, Still: {prediction[0][2] * 100} %")
     #print(prediction)
-    return np.argmax(prediction)
+    return prediction
 
 
 class WebSocketManager:
@@ -156,13 +208,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 eval_data_df = data_processor.get_evaluation_data()
 
-                acc_magnitude, _ = df_vectorized(eval_data_df)
 
-                acc_magnitude = np.array(acc_magnitude).reshape(1, 50, 1)
+                prediction = await predict_async(eval_data_df)
 
-                prediction = await predict_async(acc_magnitude)
-
-                print(f"Predicted Label: {labels[prediction]}")
+                print(f"Predicted Label: " + prediction)
                 data_processor.clear_window()
 
 

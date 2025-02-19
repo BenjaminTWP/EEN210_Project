@@ -130,4 +130,59 @@ def model_implementation():
     plot_confusion_matrix(y_pred, y_true, label_encoder)
 
 
-model_implementation()
+#model_implementation()
+
+def temp():
+    labels, sequenes = data_and_label_extraction()
+    print(sequenes.shape)
+
+    std_falls = []
+    std_other = []
+    std_still = []
+
+    for i in range(len(sequenes)):
+        if labels[i] == "fall":
+            std_falls.append(np.std(sequenes[i]))
+        elif labels[i] == "other":
+            std_other.append(np.std(sequenes[i]))
+        else:
+            std_still.append(np.std(sequenes[i]))
+        
+
+    fall_mean_std = np.mean(std_falls)
+    other_mean_std = np.mean(std_other)
+    still_mean_std = np.mean(std_still)
+
+    fall_std = np.std(std_falls)
+    other_std = np.std(std_other)
+    still_std = np.std(std_still)
+    plot_distributions(fall_mean_std, fall_std, other_mean_std, other_std, still_mean_std, still_std)
+
+
+from scipy.stats import norm
+
+def plot_distributions(fall_mean, fall_std, other_mean, other_std, still_mean, still_std):
+    categories = ['Fall', 'Other', 'Still']
+    means = [fall_mean, other_mean, still_mean]
+    stds = [fall_std, other_std, still_std]
+    colors = ['red', 'blue', 'green']
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    x_min = min(fall_mean - 3*fall_std, other_mean - 3*other_std, still_mean - 3*still_std)
+    x_max = max(fall_mean + 3*fall_std, other_mean + 3*other_std, still_mean + 3*still_std)
+    x = np.linspace(x_min, x_max, 500)
+
+    for mean, std, color, label in zip(means, stds, colors, categories):
+        ax.plot(x, norm.pdf(x, mean, std), label=label, color=color, alpha=0.7)
+
+    ax.set_title('Standard Distributions for Fall, Other, and Still')
+    ax.set_xlabel('Standard Deviation Values')
+    ax.set_ylabel('Probability Density')
+    ax.set_ylim(0, 0.2)
+    ax.grid(True, linestyle="--", alpha=0.6)
+    ax.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+temp()

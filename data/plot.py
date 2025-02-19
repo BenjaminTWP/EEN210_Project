@@ -55,7 +55,7 @@ def extract_data(path: str, column1, column2, column3):
             #df.to_csv(processed_file_path, index=False)
             #print(f"Saved: {processed_file_path}")
 
-            means = df[[column1, column2, column3]].mean()  #### WE CHANGE HERE, .std, .mean, .var
+            means = df[[column1, column2, column3]].std()  #### WE CHANGE HERE, .std, .mean, .var
 
             if folder == "fall":
                 labels.append("fall")
@@ -98,10 +98,10 @@ def plot_3d(data, labels, xlabel, ylabel, zlabel, title):
     plt.show()
 
 
-#matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
-#plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Acceleration")
+matrix, labels = extract_data("./data", "acceleration_x", "acceleration_y", "acceleration_z")
+plot_3d(matrix, labels, "acceleration_x", "acceleration_y", "acceleration_z", "Standard Deviation of Each Sample Entry. \n For axis x, y and z.")
 
-matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
+#matrix, labels = extract_data("./data", "gyroscope_x", "gyroscope_y", "gyroscope_z")
 #plot_3d(matrix, labels, "gyroscope_x", "gyroscope_y", "gyroscope_z", "Gyroscope")
 
 

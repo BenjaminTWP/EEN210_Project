@@ -20,6 +20,7 @@ def folder_average(path):
         means = df.describe().loc["mean"]
         print(means)
 
+
 #folder_average("./data")
 
 def transformation(a, b, c):
@@ -86,7 +87,7 @@ def transformation_test():
     plt.grid(True)
     plt.show()
 
-#transformation_test()
+transformation_test()
 
 def plot_transformation(path:str):
     all_data_df = pd.read_csv(path)
