@@ -113,24 +113,28 @@ def plot_confusion_matrix(y_true_classes, y_pred_classes, label_encoder):
 def model_implementation():
     labels, sequences = data_and_label_extraction()
     encoded_labels, label_encoder = encode_labels(labels)
+    label_encoder.classes_
 
-    X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
 
-    model = configure_model(y_train)
 
-    train_model(model, X_train, X_test, y_train, y_test)
+
+    #X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
+
+    #model = configure_model(y_train)
+
+    #train_model(model, X_train, X_test, y_train, y_test)
 
     #best_model = load_model("./model/best_val_model.h5")
     #best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.save("./model/best_val_model.h5")
+    #model.save("./model/best_val_model.h5")
 
 
-    y_pred, y_true = evaluate_model(model, X_test, y_test)
+    #y_pred, y_true = evaluate_model(model, X_test, y_test)
 
-    plot_confusion_matrix(y_pred, y_true, label_encoder)
+    #plot_confusion_matrix(y_pred, y_true, label_encoder)
 
 
-#model_implementation()
+model_implementation()
 
 def temp():
     labels, sequenes = data_and_label_extraction()
@@ -185,4 +189,4 @@ def plot_distributions(fall_mean, fall_std, other_mean, other_std, still_mean, s
     plt.tight_layout()
     plt.show()
 
-temp()
+#temp()

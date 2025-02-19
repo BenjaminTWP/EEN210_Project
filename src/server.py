@@ -92,7 +92,7 @@ class RuleBasedClassifier:
         accel_std = np.std(accel_magnitude_np)
         gyro_std = np.std(gyro_magnitude_np)
 
-        print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
+        #print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
         return accel_std, gyro_std
 
 
@@ -100,7 +100,7 @@ class RuleBasedClassifier:
     def predict(self, data):
         accel_std, gyro_std = self._prepare_prediction(data)
 
-        if accel_std <= 0.5 and gyro_std <= 10:# or accel_std <= 0.20 or gyro_std <= 7.5 :
+        if accel_std <= 0.6 and gyro_std <= 10:# or accel_std <= 0.20 or gyro_std <= 7.5 :
             prediction = "still"
         elif accel_std >= 2.0 and gyro_std >= 25:
             prediction = "fall"
@@ -129,6 +129,9 @@ class RuleBasedClassifier:
         return prediction
 
 model = RuleBasedClassifier()
+lstm_model = load_model("./model/bestest_model.h5")
+lstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
 
 def load_model_nah():
     # you should modify this function to return your model
@@ -147,6 +150,17 @@ def predict_label(model, data):
     #print(prediction)
     return prediction
 
+async def predict_lstm_async(data):
+    return predicted_lstm(lstm_model, data)
+
+def predicted_lstm(model, data):
+    eval_data_np = data.astype(np.float32).reshape(1, 50, 1) 
+    prediction = model.predict(eval_data_np)
+    predicted_label = np.argmax(prediction)
+    labels = {0: "fall", 1: "other", 2: "still"}
+
+    print(prediction)
+    return labels[predicted_label]
 
 class WebSocketManager:
     def __init__(self):
@@ -208,10 +222,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 eval_data_df = data_processor.get_evaluation_data()
 
+                accel_mag, _ = df_vectorized(eval_data_df)
+                lstm_prediction = await predict_lstm_async(accel_mag)
+                print(f"Lstm prediction {lstm_prediction}")
 
                 prediction = await predict_async(eval_data_df)
 
-                print(f"Predicted Label: " + prediction)
+                print(f"RB prediction: " + prediction)
                 data_processor.clear_window()
 
 
