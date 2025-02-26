@@ -95,15 +95,13 @@ class RuleBasedClassifier:
         print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
         return accel_std, gyro_std
 
-
-    
     def predict(self, data):
         accel_std, gyro_std = self._prepare_prediction(data)
 
         if accel_std <= 0.6 and gyro_std <= 10:# or accel_std <= 0.20 or gyro_std <= 7.5 :
             prediction = "still"
         elif accel_std >= 2.0 and gyro_std >= 25:
-            prediction = "fall"
+            prediction = "possible-fall"
             print("POSSIBLE FALL DETECTED")
             self.last_fall_index = len(self.predictions_made) 
         else:
@@ -198,12 +196,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-
-            # Broadcast the incoming data to all connected clients
             json_data = json.loads(data)
-
-            # use raw_data for prediction. NOT currently used
-            raw_data = list(json_data.values())
 
             if "action" in json_data:
                 if json_data["action"] == "start":
@@ -214,45 +207,63 @@ async def websocket_endpoint(websocket: WebSocket):
                     websocket_manager.recording = False
                     data_processor.save_to_csv()
                     print("Stopped recording and saved data.")
+                elif json_data["action"] == "email":
+                    print("SEND EMAIL FROM HERE")
                 continue
 
+            # Process sensor data
             data_processor.add_window_data(json_data)
 
             if data_processor.data_window_length == 50:
-                
                 eval_data_df = data_processor.get_evaluation_data()
-
-                #accel_mag, _ = df_vectorized(eval_data_df)
-                #lstm_prediction = await predict_lstm_async(accel_mag)
-                #print(f"Lstm prediction {lstm_prediction}")
-
                 prediction = await predict_async(eval_data_df)
+                if prediction == "fall":
+                    print("CALL FOR PATIENT DATA AND SEND TO WEBSERVER")
+                    patient_info = {
+                        "type": "patient_info",
+                        "name": "John Doe",
+                        "id": "12345",
+                        "age": 45,
+                        "medications": ["Aspirin", "Metformin"],
+                        "careplans": ["Physical Therapy"]
+                    }
+                    await websocket_manager.broadcast_message(json.dumps(patient_info))
+                print(f"RB prediction: {prediction}")
 
-                print(f"RB prediction: " + prediction)
+                # Send prediction separately
+                prediction_message = json.dumps({"type": "prediction", "label": prediction})
+                await websocket_manager.broadcast_message(prediction_message)
+
                 data_processor.clear_window()
 
-
-            ''' Old code for predictions 
-            In this line we use the model to predict the labels.
-            Right now it only return 0.
-            You need to modify the predict_label function to return the true label
-            """
-            label = predict_label(model, raw_data)
-            json_data["label"] = label
-            '''
-            
-            # Add time stamp to the last received data
+            # Add timestamp to sensor data and broadcast
             json_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
             if websocket_manager.recording:
                 data_processor.add_data(json_data)
-            # print the last data in the terminal
-            #print(json_data)
 
-            # broadcast the last data to webpage
-            await websocket_manager.broadcast_message(json.dumps(json_data))
+            # Broadcast sensor data
+            sensor_message = json.dumps({"type": "sensor", "data": json_data})
+            await websocket_manager.broadcast_message(sensor_message)
 
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket)
+
+
+@app.get("/send_patient_info")
+async def send_patient_info():
+    """ Endpoint to manually trigger sending patient info """
+    patient_info = {
+        "type": "patient_info",
+        "name": "John Doe",
+        "id": "12345",
+        "age": 45,
+        "medications": ["Aspirin", "Metformin"],
+        "careplans": ["Physical Therapy"]
+    }
+    await websocket_manager.broadcast_message(json.dumps(patient_info))
+    return {"message": "Patient info sent"}
+
 
 
 if __name__ == "__main__":

@@ -44,22 +44,67 @@ var recordData = false;
 
 var data = null;
 
-var ipAddress = "192.168.224.220";
+var ipAddress = "192.168.75.220";
 
 var ws = new WebSocket("ws://" + ipAddress + ":8000/ws"); // Create a new WebSocket
 
 ws.onopen = function (event) {
     console.log("WebSocket state:", ws.readyState);  // This will log "OPEN"
 };
-ws.onmessage = function (event) {
-    console.log("Received data:", event.data);
 
-    var data = JSON.parse(event.data);
-    updateLiveCharts(data)
-    if(recordData){
-        updateRecordingCharts(data);
+var fallDetected = false;
+
+ws.onmessage = function (event) {
+    //console.log("Received data:", event.data);
+    var message = JSON.parse(event.data);
+
+    if (message.type === "sensor") {
+        updateLiveCharts(message.data);
+        if (recordData) {
+            updateRecordingCharts(message.data);
+        }
+    } 
+    else if (message.type === "prediction") {
+        console.log("Prediction received:", message.label);
+        updatePredictionLabel(message.label);
+    }
+    else if (message.type === "patient_info") {
+        console.log("Patient Info Received:", message);
+        updatePatientInfo(message);
     }
 };
+
+function updatePredictionLabel(prediction) {
+    const labels = {
+        fall: document.getElementById("fallLabel"),
+        still: document.getElementById("stillLabel"),
+        other: document.getElementById("otherLabel")
+    };
+
+    Object.values(labels).forEach(label => {
+        label.style.backgroundColor = "transparent";
+        label.style.color = "black"; 
+    });
+
+    const labelColors = {
+        fall: { background: "red", text: "white" },
+        still: { background: "green", text: "white" },
+        other: { background: "yellow", text: "black" }
+    };
+
+    if (labels[prediction]) {
+        labels[prediction].style.backgroundColor = labelColors[prediction].background;
+        labels[prediction].style.color = labelColors[prediction].text;
+    }
+}
+
+function updatePatientInfo(info) {
+    document.getElementById("patientName").innerText = info.name;
+    document.getElementById("patientID").innerText = info.id;
+    document.getElementById("patientAge").innerText = info.age;
+    document.getElementById("medList").innerText = info.medications.join(", ") || "None";
+    document.getElementById("careList").innerText = info.careplans.join(", ") || "None";
+}
 
 
 function updateRecordingCharts(data) {
@@ -139,3 +184,15 @@ clearButton.addEventListener("click", function (){
     var ul = document.getElementById("messages");
     
 });
+
+function sendEmailCall() {
+    let filename = document.getElementById("filename").value || "data_log";
+    console.log("Sending WebSocket message for email with filename:", filename);
+    
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: "email", filename: filename }));
+    } else {
+        console.error("WebSocket is NOT open! Current state:", ws.readyState);
+    }
+}
+document.getElementById("sendButton").addEventListener("click", sendEmailCall);
