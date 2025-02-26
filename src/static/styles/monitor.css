@@ -17,7 +17,7 @@
 }
 
 #liveInformation{
-    background-color: rgb(184, 184, 184);
+    background-color: rgb(224, 224, 224);
     height: 100%;
     width: 100%;
     border-top-right-radius: 20px;
@@ -41,4 +41,26 @@
     flex-grow: 1;
     width: 100%;
     height: 0;
+}
+
+#liveInformation{
+    display: flex;
+    flex-direction: row;
+}
+#predict {
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+}
+
+.warning {
+    width: 9vh;
+    flex: 1; /* Each label takes equal space */
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    text-align: center;
+    border-radius: 2px;
+    border: 1px solid rgb(104, 104, 104); 
+    background-color: rgb(224, 224, 224);
 }
