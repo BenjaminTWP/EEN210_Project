@@ -87,7 +87,7 @@ def transformation_test():
     plt.grid(True)
     plt.show()
 
-transformation_test()
+#transformation_test()
 
 def plot_transformation(path:str):
     all_data_df = pd.read_csv(path)

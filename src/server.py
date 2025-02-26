@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from tensorflow.keras.models import load_model # type: ignore
+#from tensorflow.keras.models import load_model # type: ignore
 import numpy as np
 from collections import deque
 import pandas as pd
@@ -92,7 +92,7 @@ class RuleBasedClassifier:
         accel_std = np.std(accel_magnitude_np)
         gyro_std = np.std(gyro_magnitude_np)
 
-        #print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
+        print(f"Acceleration STD : {str(accel_std)}. Gyroscope STD : {str(gyro_std)}")
         return accel_std, gyro_std
 
 
@@ -129,13 +129,13 @@ class RuleBasedClassifier:
         return prediction
 
 model = RuleBasedClassifier()
-lstm_model = load_model("./model/bestest_model.h5")
-lstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+#lstm_model = load_model("./model/bestest_model.h5")
+#lstm_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 
 def load_model_nah():
     # you should modify this function to return your model
-    model = load_model()
+    ##model = load_model()
     print("Model Loaded Successfully")
     return model
 
@@ -150,8 +150,8 @@ def predict_label(model, data):
     #print(prediction)
     return prediction
 
-async def predict_lstm_async(data):
-    return predicted_lstm(lstm_model, data)
+#async def predict_lstm_async(data):
+#    return predicted_lstm(lstm_model, data)
 
 def predicted_lstm(model, data):
     eval_data_np = data.astype(np.float32).reshape(1, 50, 1) 
@@ -222,9 +222,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 eval_data_df = data_processor.get_evaluation_data()
 
-                accel_mag, _ = df_vectorized(eval_data_df)
-                lstm_prediction = await predict_lstm_async(accel_mag)
-                print(f"Lstm prediction {lstm_prediction}")
+                #accel_mag, _ = df_vectorized(eval_data_df)
+                #lstm_prediction = await predict_lstm_async(accel_mag)
+                #print(f"Lstm prediction {lstm_prediction}")
 
                 prediction = await predict_async(eval_data_df)
 

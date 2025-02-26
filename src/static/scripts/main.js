@@ -53,25 +53,16 @@ ws.onopen = function (event) {
 };
 ws.onmessage = function (event) {
     console.log("Received data:", event.data);
-    var messages = document.getElementById('messages');
-    var message = document.createElement('li');
-    var content = document.createTextNode(event.data);
-    message.appendChild(content);
-
-    // Append the new li element to the ul element
-    messages.appendChild(message);
-
-    // Scroll to the bottom
-    messages.scrollTop = messages.scrollHeight;
 
     var data = JSON.parse(event.data);
+    updateLiveCharts(data)
     if(recordData){
-        updateCharts(data);
+        updateRecordingCharts(data);
     }
 };
 
 
-function updateCharts(data) {
+function updateRecordingCharts(data) {
     // This is the label of the time index. Right now nothing. 
     accelChart.data.labels.push("");
     gyroChart.data.labels.push("");
@@ -84,7 +75,6 @@ function updateCharts(data) {
     gyroChart.data.datasets[1].data.push(data.gyroscope_y);
     gyroChart.data.datasets[2].data.push(data.gyroscope_z);
 
-    accelChart.update();
     gyroChart.update();
 }
 
@@ -98,11 +88,6 @@ ws.onclose = function (event) {
     console.log("WebSocket closed:", event);
 };
             
-var closeButton = document.getElementById('closeButton');
-closeButton.addEventListener('click', function () {
-    // Call the close function when the button is clicked
-    close();
-});
 
 function clearData(){
     gyroChart.data.labels = [];  
@@ -152,5 +137,5 @@ clearButton.addEventListener("click", function (){
         clearData();
     }
     var ul = document.getElementById("messages");
-    ul.innerHTML = '';
+    
 });

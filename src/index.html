@@ -5,13 +5,48 @@
       <link rel="icon" href="./static/images/slippery.png" type="image/png" >
       <link rel="stylesheet" href="./static/styles/dataCollection.css">
       <link rel="stylesheet" href="./static/styles/mainPage.css">
+      <link rel="stylesheet" href="./static/styles/monitor.css">
    </head>
    <body>
+
+      <div id="head" class="header">
+         <div>
+            <img src="./static/images/slippery.png" alt="Homepage">
+         </div>
+         <div style="padding-left: 30px;">
+            <h1>Real-Time Fall Detection System</h1>
+         </div>
+      </div>
+
+      <div class="center-stage">
+
+      <diV class="monitor-container">
+         <div id="liveCharts" >
+
+            <canvas id="liveAccelChart"></canvas>
+            <canvas id="liveGyroChart"></canvas>
+
+         </div>
+
+         <div id="liveInformation" >
+
+
+         </div>
+
+      
+      </diV>
+
+
+      <!---
       <h1>Real-time data collection</h1>
       <button id="closeButton">Close Connection</button>
       <div>
          <ul id="messages"></ul>
       </div>
+      -->
+
+
+
       <div>
          <button class="accordion" style="font-size: x-large; font-weight: bold;">Data Collector</button>
          <div class="panel">
@@ -30,8 +65,11 @@
             </div>
          </div>
       </div>
+
+   </div>
       <script></script>
       </div>
    </body>
    <script src="./static/scripts/main.js"></script>
+   <script src="./static/scripts/liveMonitor.js"></script>
 </html>
