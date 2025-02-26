@@ -18,10 +18,10 @@
       </div>
       <div class="center-stage">
          <diV class="monitor-container">
-            <div id="liveCharts" >
-               <canvas id="liveAccelChart"></canvas>
-               <canvas id="liveGyroChart"></canvas>
+            <div id="liveCharts">
+               <canvas id="liveChart"></canvas>  
             </div>
+            
             <div id="liveInformation">
                <div id="predict">
                   <label id="fallLabel" class="warning">Fall</label>
@@ -46,13 +46,6 @@
               </div>
             </div> 
          </diV>
-         <!---
-            <h1>Real-time data collection</h1>
-            <button id="closeButton">Close Connection</button>
-            <div>
-               <ul id="messages"></ul>
-            </div>
-            -->
          <div>
             <button class="accordion" style="font-size: x-large; font-weight: bold;">Data Collector</button>
             <div class="panel">
@@ -75,6 +68,7 @@
       <script></script>
       </div>
    </body>
-   <script src="./static/scripts/main.js"></script>
-   <script src="./static/scripts/liveMonitor.js"></script>
+
+   <script src="./static/scripts/main_v1.js"></script>
+   <script src="./static/scripts/liveMonitor_v1.js"></script>
 </html>

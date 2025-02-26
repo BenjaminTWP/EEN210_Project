@@ -17,23 +17,23 @@
 }
 
 #liveInformation{
-    background-color: rgb(224, 224, 224);
+    background-color: #eee;
     height: 100%;
     width: 100%;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 
 }
 
 #liveCharts {
-    background-color: rgb(224, 224, 224);
+    background-color: #eee;
     height: 100%;
     width: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+    overflow: auto;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 
@@ -50,7 +50,8 @@
 #predict {
     display: flex;
     flex-direction: column;
-    height: 100%; 
+    height: 95%; 
+    padding: 10px;
 }
 
 .warning {
@@ -63,7 +64,7 @@
     text-align: center;
     border-radius: 2px;
     border: 1px solid rgb(104, 104, 104); 
-    background-color: rgb(224, 224, 224);
+    background-color: #eee;
 }
 
 #personalInformation {
@@ -78,7 +79,7 @@
 
 .info-section {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid rgb(104, 104, 104);
     display: flex;
     flex-direction: column;
     gap: 5px;

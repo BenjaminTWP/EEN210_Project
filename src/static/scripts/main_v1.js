@@ -74,6 +74,30 @@ ws.onmessage = function (event) {
     }
 };
 
+
+function updateLiveCharts(data) {
+    // Compute acceleration magnitude
+    let accelMagnitude = Math.sqrt(
+        Math.pow(data.acceleration_x, 2) +
+        Math.pow(data.acceleration_y, 2) +
+        Math.pow(data.acceleration_z, 2)
+    );
+
+    // Compute gyroscope magnitude
+    let gyroMagnitude = Math.sqrt(
+        Math.pow(data.gyroscope_x, 2) +
+        Math.pow(data.gyroscope_y, 2) +
+        Math.pow(data.gyroscope_z, 2)
+    );
+
+    // Extract timestamp (MM:SS format)
+    let timestamp = data.timestamp.split(" ")[1].slice(3);  // Extract MM:SS
+
+    // Call new function to update chart
+    updateLiveMonitorChart(timestamp, accelMagnitude, gyroMagnitude);
+};
+
+
 function updatePredictionLabel(prediction) {
     const labels = {
         fall: document.getElementById("fallLabel"),
