@@ -7,6 +7,7 @@
 
 .center-stage{
     margin: 2vh;
+    margin-top: 7vh;
 }
 
 .monitor-container{
@@ -26,6 +27,7 @@
 }
 
 #liveCharts {
+
     background-color: #eee;
     height: 100%;
     width: 100vh;
@@ -48,6 +50,8 @@
     flex-direction: row;
 }
 #predict {
+    margin-left: 10vh;
+    margin-right: 10vh;
     display: flex;
     flex-direction: column;
     height: 95%; 
@@ -63,7 +67,7 @@
     align-items: center; 
     text-align: center;
     border-radius: 2px;
-    border: 1px solid rgb(104, 104, 104); 
+    border: 3px solid rgb(104, 104, 104); 
     background-color: #eee;
 }
 
@@ -79,12 +83,13 @@
 
 .info-section {
     padding: 10px;
+    border-radius: 3px;
     border: 1px solid rgb(104, 104, 104);
     display: flex;
     flex-direction: column;
     gap: 5px;
     flex: 1;
-    width: 80%; 
+    width: 95%; 
 }
 
 .info-label {

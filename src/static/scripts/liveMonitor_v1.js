@@ -13,7 +13,9 @@ var liveChart = new Chart(document.getElementById('liveChart').getContext('2d'),
         maintainAspectRatio: false,
         scales: {
             x: { title: { display: true, text: "Time (MM:SS)" } },
-            y: { title: { display: true, text: "Magnitude" }, min:0, max:500 }
+            y: { title: { display: true, text: "Magnitude" }, min:0, max:500, ticks: {
+                stepSize: 5,  
+            } }
         }
     }
 });
