@@ -104,6 +104,7 @@ function updatePatientInfo(info) {
     document.getElementById("patientAge").innerText = info.age;
     document.getElementById("medList").innerText = info.medications.join(", ") || "None";
     document.getElementById("careList").innerText = info.careplans.join(", ") || "None";
+    document.getElementById("contactList").innerText = info.contact;
 }
 
 

@@ -61,8 +61,12 @@ def handle_action_call(websocket_manager, data_processor, json_data):
         data_processor.save_to_csv()
         print("Stopped recording and saved data.")
     elif json_data["action"] == "email":
+        handle_email_call
         print("SEND EMAIL FROM HERE")
 
 def handle_patient_information_call():
     return get_random_patient()
     
+def handle_email_call():
+    patient = get_random_patient()
+    contact_person = patient["contact"]
