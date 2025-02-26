@@ -8,7 +8,6 @@
       <link rel="stylesheet" href="./static/styles/monitor.css">
    </head>
    <body>
-
       <div id="head" class="header">
          <div>
             <img src="./static/images/slippery.png" alt="Homepage">
@@ -17,62 +16,62 @@
             <h1>Real-Time Fall Detection System</h1>
          </div>
       </div>
-
       <div class="center-stage">
-
-      <diV class="monitor-container">
-         <div id="liveCharts" >
-
-            <canvas id="liveAccelChart"></canvas>
-            <canvas id="liveGyroChart"></canvas>
-
-         </div>
-
-         <div id="liveInformation">
-            <div id="predict">
-               <label class="warning">Fall</label>
-               <label class="warning">Still</label>
-               <label class="warning">Other</label>
+         <diV class="monitor-container">
+            <div id="liveCharts" >
+               <canvas id="liveAccelChart"></canvas>
+               <canvas id="liveGyroChart"></canvas>
             </div>
-         <div id="personal-information">
-
-         </div>
-
-         </div>
-      
-      </diV>
-
-
-      <!---
-      <h1>Real-time data collection</h1>
-      <button id="closeButton">Close Connection</button>
-      <div>
-         <ul id="messages"></ul>
-      </div>
-      -->
-
-
-
-      <div>
-         <button class="accordion" style="font-size: x-large; font-weight: bold;">Data Collector</button>
-         <div class="panel">
-            <div class="collector-actions">
-               <div>
-                  <label for="filename" class="collector-button">CSV file name: </label>
-                  <input type="text" id="filename" placeholder="data_log" class="collector-button">
-                  <button id="startButton" style="background-color: greenyellow;" class="collector-button">Start</button>
-                  <button id="stopButton" style="background-color: red;" class="collector-button">Stop</button>
-                  <button id="clearButton" style="background-color: greenyellow;" class="collector-button">Clear Graphs</button>
+            <div id="liveInformation">
+               <div id="predict">
+                  <label class="warning">Fall</label>
+                  <label class="warning">Still</label>
+                  <label class="warning">Other</label>
+               </div>
+               <div id="personalInformation">
+                  <div id="nameAnd" class="info-section">
+                      <label class="info-label"><strong>Patient:</strong> <span id="patientName">______ _______</span> (ID: <span id="patientID">______</span>)</label>
+                      <label class="info-label"><strong>Age:</strong> <span id="patientAge">__</span></label>
+                  </div>
+                  <div id="medications" class="info-section">
+                      <label class="info-label"><strong>Medications:</strong> <span id="medList">____</span></label>
+                  </div>
+                  <div id="carePlans" class="info-section">
+                      <label class="info-label"><strong>Care Plans:</strong> <span id="careList">____</span></label>
+                  </div>
+                  <div id="contact" class="info-section">
+                     <label class="info-label"><strong>Contact Information:</strong> <span id="careList">____</span></label>
+                     <button>Send Contact E-Mail</button>
+                  </div>
+              </div>
+            </div> 
+         </diV>
+         <!---
+            <h1>Real-time data collection</h1>
+            <button id="closeButton">Close Connection</button>
+            <div>
+               <ul id="messages"></ul>
+            </div>
+            -->
+         <div>
+            <button class="accordion" style="font-size: x-large; font-weight: bold;">Data Collector</button>
+            <div class="panel">
+               <div class="collector-actions">
+                  <div>
+                     <label for="filename" class="collector-button">CSV file name: </label>
+                     <input type="text" id="filename" placeholder="data_log" class="collector-button">
+                     <button id="startButton" style="background-color: greenyellow;" class="collector-button">Start</button>
+                     <button id="stopButton" style="background-color: red;" class="collector-button">Stop</button>
+                     <button id="clearButton" style="background-color: greenyellow;" class="collector-button">Clear Graphs</button>
+                  </div>
+               </div>
+               <div class="charts-container">
+                  <canvas id="accelChart"></canvas>
+                  <canvas id="gyroChart"></canvas>
                </div>
             </div>
-            <div class="charts-container">
-               <canvas id="accelChart"></canvas>
-               <canvas id="gyroChart"></canvas>
-            </div>
          </div>
       </div>
-
-   </div>
       <script></script>
       </div>
    </body>

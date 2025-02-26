@@ -54,8 +54,9 @@
 }
 
 .warning {
+    margin-left: 10px;
     width: 9vh;
-    flex: 1; /* Each label takes equal space */
+    flex: 1; 
     display: flex;
     justify-content: center; 
     align-items: center; 
@@ -63,4 +64,29 @@
     border-radius: 2px;
     border: 1px solid rgb(104, 104, 104); 
     background-color: rgb(224, 224, 224);
+}
+
+#personalInformation {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px; 
+    align-items: center; 
+    height: 95%; 
+}
+
+.info-section {
+    padding: 10px;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    width: 80%; 
+}
+
+.info-label {
+    font-size: 16px;
+    padding: 5px;
 }
