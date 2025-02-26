@@ -122,24 +122,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 prediction = await predict_async(eval_data_df)
                 print(f"RB prediction: {prediction}")
 
-                if prediction == "fall":
-                    print("CALL FOR PATIENT DATA AND SEND TO WEBSERVER")
-                    patient_info = {
-                        "type": "patient_info",
-                        "name": "John Doe",
-                        "id": "12345",
-                        "age": 45,
-                        "medications": ["Aspirin", "Metformin"],
-                        "careplans": ["Physical Therapy"]
-                    }
-                    await websocket_manager.broadcast_message(json.dumps(patient_info))
-                
                 prediction_message = json.dumps({"type": "prediction", "label": prediction})
                 await websocket_manager.broadcast_message(prediction_message)
 
+                if prediction == "fall":
+                    print("CALL FOR PATIENT DATA AND SEND TO WEBSERVER")
+                    patient_info = handle_patient_information_call()
+                    await websocket_manager.broadcast_message(json.dumps(patient_info))
+
                 data_processor.clear_window()
 
-            
             json_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             if websocket_manager.recording:
                 data_processor.add_data(json_data)
@@ -149,21 +141,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket)
-
-
-@app.get("/send_patient_info")
-async def send_patient_info():
-    patient_info = {
-        "type": "patient_info",
-        "name": "John Doe",
-        "id": "12345",
-        "age": 45,
-        "medications": ["Aspirin", "Metformin"],
-        "careplans": ["Physical Therapy"]
-    }
-    await websocket_manager.broadcast_message(json.dumps(patient_info))
-    return {"message": "Patient info sent"}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

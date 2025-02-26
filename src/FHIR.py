@@ -1,6 +1,8 @@
 import requests
 from datetime import datetime
+import random
 
+print("Fetching FIHR Data")
 patients_url = "https://fhirsandbox.healthit.gov/open/r4/fhir/Patient?_format=json"
 patients_data = requests.get(patients_url).json()
 
@@ -75,10 +77,31 @@ for entry in patients_data.get("entry", []):
             if "body height" in code_text or "body length" in code_text:
                 patients_dict[patient_id]["body_length"] = f"{value} {unit}"
 
-# Print results
+'''
 for patient_id, details in patients_dict.items():
     print(f"\nPatient: {details['name']} (ID: {patient_id}), Age: {details['age']}, Ethnicity: {details['ethnicity']}")
     print("Medications:", ", ".join(details['medications']) or "None")
     print("CarePlans:", ", ".join(details['careplans']) or "None")
     print(f"Body Weight: {details['body_weight'] or 'Unknown'}")
     print(f"Body Length: {details['body_length'] or 'Unknown'}")
+'''
+
+patient_id = random.choice(list(patients_dict.keys()))  
+
+def get_random_patient():
+    if not patients_dict:
+        return None  
+    
+    details = patients_dict[patient_id]
+
+    patient_info = {
+        "type": "patient_info",
+        "name": details["name"],
+        "id": patient_id,
+        "age": details["age"],
+        "medications": list(details["medications"]) or ["None"],
+        "careplans": list(details["careplans"]) or ["None"],
+        "contact": list(["benjaminp1997@hotmail.com"] or ["None"])
+    }
+
+    return patient_info

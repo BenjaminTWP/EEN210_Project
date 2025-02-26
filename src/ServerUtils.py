@@ -1,7 +1,9 @@
 import numpy as np
 from collections import deque
 from transform import df_vectorized
-
+from FHIR import get_random_patient
+import json
+from fastapi import FastAPI, WebSocket
 
 class RuleBasedClassifier:
     def __init__(self, majority_treshold):
@@ -60,3 +62,7 @@ def handle_action_call(websocket_manager, data_processor, json_data):
         print("Stopped recording and saved data.")
     elif json_data["action"] == "email":
         print("SEND EMAIL FROM HERE")
+
+def handle_patient_information_call():
+    return get_random_patient()
+    
