@@ -104,9 +104,9 @@ def plot_confusion_matrix(y_true_classes, y_pred_classes, label_encoder):
     class_names = label_encoder.classes_
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
-    plt.xlabel("Predicted")
-    plt.ylabel("True")
-    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title("Confusion Matrix For LSTM")
     plt.show()
 
 
@@ -124,7 +124,7 @@ def model_implementation():
 
     train_model(model, X_train, X_test, y_train, y_test)
 
-    best_model = load_model("./model/best_val_model.h5")
+    best_model = load_model("./model/bestest_model.h5")
     best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.save("./model/best_val_model.h5")
 

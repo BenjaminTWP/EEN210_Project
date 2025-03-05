@@ -2,8 +2,7 @@ import numpy as np
 from collections import deque
 from transform import df_vectorized
 from FHIR import get_random_patient
-import json
-from fastapi import FastAPI, WebSocket
+from SendEmail import send_email
 
 class RuleBasedClassifier:
     def __init__(self, majority_treshold):
@@ -61,8 +60,7 @@ def handle_action_call(websocket_manager, data_processor, json_data):
         data_processor.save_to_csv()
         print("Stopped recording and saved data.")
     elif json_data["action"] == "email":
-        handle_email_call
-        print("SEND EMAIL FROM HERE")
+        handle_email_call()
 
 def handle_patient_information_call():
     return get_random_patient()
@@ -70,3 +68,4 @@ def handle_patient_information_call():
 def handle_email_call():
     patient = get_random_patient()
     contact_person = patient["contact"]
+    send_email(contact_person)

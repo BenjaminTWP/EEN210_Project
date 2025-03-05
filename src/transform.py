@@ -129,4 +129,5 @@ def plot_transformation(path:str):
     plt.grid()
     plt.show()
 
-#plot_transformation("./data/fall/fall_back_v_1.csv")
+#plot_transformation("./data/moving_when_starting.csv")
+#plot_transformation("./data/still_when_starting.csv")
