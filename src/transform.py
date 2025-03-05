@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 
 def folder_average(path):
@@ -42,14 +43,16 @@ def df_vectorized(df):
     return np.array(accel_magnitudes), np.array(gyro_magnitudes)
 
 
-def transformation_test():
+def extract_transformation_data():
     path = "./data"
-    folder_stats = {}  # Store variance for each folder
+    folder_stats = {}  # storing statistics for each category
 
     for folder in os.listdir(path):
         folder_path = os.path.join(path, folder)
         if not os.path.isdir(folder_path):
             continue
+
+        category = folder if folder in ["still", "fall"] else "other"
 
         for file in os.listdir(folder_path):
             file_path = os.path.join(folder_path, file)
@@ -63,31 +66,48 @@ def transformation_test():
             accel_variance = pd.Series(accel_magnitudes).std()
             gyro_variance = pd.Series(gyro_magnitudes).std()
 
-            if folder not in folder_stats:
-                folder_stats[folder] = []
+            if category not in folder_stats:
+                folder_stats[category] = []
 
-            folder_stats[folder].append((accel_variance, gyro_variance))
+            folder_stats[category].append((accel_variance, gyro_variance, file))
+    
+    return folder_stats
 
-    # Plotting
+def split_data(folder_stats, train_ratio=0.8):
+    train_data = {}
+    test_data = {}
+
+    for category, values in folder_stats.items():
+        random.shuffle(values)
+        split_idx = int(len(values) * train_ratio)
+        train_data[category] = values[:split_idx]
+        test_data[category] = values[split_idx:]
+
+    return train_data, test_data
+
+def plot_transformation_data(train_data):
     plt.figure()
     colors = plt.cm.get_cmap("tab10")
 
-    for idx, (folder, variances) in enumerate(folder_stats.items()):
-        for accel_var, gyro_var in variances:
+    for idx, (folder, variances) in enumerate(train_data.items()):
+        for accel_var, gyro_var, filename in variances:
             plt.scatter(accel_var, gyro_var, color=colors(idx), label=folder)
+            #plt.text(accel_var, gyro_var, filename, fontsize=8, alpha=0.7)  # Add filename as label
 
-    # Avoid duplicate legend entries
     handles, labels = plt.gca().get_legend_handles_labels()
     unique_labels = dict(zip(labels, handles))
     plt.legend(unique_labels.values(), unique_labels.keys())
 
-    plt.xlabel("Acceleration")
-    plt.ylabel("Gyroscope")
-    plt.title("Acceleration vs Gyroscope")
+    plt.xlabel("Acceleration Magnitude STD")
+    plt.ylabel("Gyroscope Magnitude STD")
     plt.grid(True)
     plt.show()
 
-#transformation_test()
+
+folder_stats = extract_transformation_data()
+train_data, test_data = split_data(folder_stats)
+plot_transformation_data(train_data)
+
 
 def plot_transformation(path:str):
     all_data_df = pd.read_csv(path)

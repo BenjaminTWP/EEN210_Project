@@ -118,20 +118,20 @@ def model_implementation():
 
 
 
-    #X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
+    X_train, X_test, y_train, y_test = train_test_split(sequences, encoded_labels, test_size=0.2, random_state=10)
 
-    #model = configure_model(y_train)
+    model = configure_model(y_train)
 
-    #train_model(model, X_train, X_test, y_train, y_test)
+    train_model(model, X_train, X_test, y_train, y_test)
 
-    #best_model = load_model("./model/best_val_model.h5")
-    #best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    #model.save("./model/best_val_model.h5")
+    best_model = load_model("./model/best_val_model.h5")
+    best_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.save("./model/best_val_model.h5")
 
 
-    #y_pred, y_true = evaluate_model(model, X_test, y_test)
+    y_pred, y_true = evaluate_model(model, X_test, y_test)
 
-    #plot_confusion_matrix(y_pred, y_true, label_encoder)
+    plot_confusion_matrix(y_pred, y_true, label_encoder)
 
 
 model_implementation()
