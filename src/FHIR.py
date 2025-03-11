@@ -14,20 +14,17 @@ for entry in patients_data.get("entry", []):
     resource = entry["resource"]
     patient_id = resource["id"]
 
-    # Name
     name_info = resource.get("name", [{}])[0]
     given_name = " ".join(name_info.get("given", []))
     family_name = name_info.get("family", "")
     full_name = f"{given_name} {family_name}".strip()
 
-    # Age
     birth_date = resource.get("birthDate")
     age = None
     if birth_date:
         birth_date_dt = datetime.strptime(birth_date, "%Y-%m-%d")
         age = today.year - birth_date_dt.year - ((today.month, today.day) < (birth_date_dt.month, birth_date_dt.day))
 
-    # Ethnicity
     ethnicity = "Unknown"
     for ext in resource.get("extension", []):
         if ext.get("url") == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity":
@@ -43,7 +40,7 @@ for entry in patients_data.get("entry", []):
         "body_length": None,
     }
 
-    # Fetch Medications (Catalog, not patient-specific)
+    # Here we fetch medic data (Catalog, not patient-specific) i.e. medicines in the catalogue
     med_url = "https://fhirsandbox.healthit.gov/open/r4/fhir/Medication?_format=json"
     med_data = requests.get(med_url).json()
     if med_data.get("entry"):
@@ -52,7 +49,7 @@ for entry in patients_data.get("entry", []):
             for code in med_coding:
                 patients_dict[patient_id]["medications"].add(code.get('display', 'Unknown'))
 
-    # Fetch CarePlans (Patient-specific)
+    # This fetches from CARE-PLANS (Patient-specific)
     careplan_url = f"https://fhirsandbox.healthit.gov/open/r4/fhir/CarePlan?subject=Patient/{patient_id}&_format=json"
     careplan_data = requests.get(careplan_url).json()
     if careplan_data.get("entry"):
@@ -62,7 +59,7 @@ for entry in patients_data.get("entry", []):
                 for code in cp_coding.get("coding", []):
                     patients_dict[patient_id]["careplans"].add(code.get('display', 'Unknown'))
 
-    # Fetch Observations (Weight and Length)
+    # this fetches from OBSERVATIONS (Weight and Length)
     obs_url = f"https://fhirsandbox.healthit.gov/open/r4/fhir/Observation?subject=Patient/{patient_id}&_format=json"
     obs_data = requests.get(obs_url).json()
     if obs_data.get("entry"):

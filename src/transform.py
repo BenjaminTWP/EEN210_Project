@@ -106,10 +106,10 @@ def plot_transformation_data(train_data):
 
 folder_stats = extract_transformation_data()
 train_data, test_data = split_data(folder_stats)
-plot_transformation_data(train_data)
+#plot_transformation_data(train_data)
 
 
-def plot_transformation(path:str):
+def plot_transformation(path:str, title):
     all_data_df = pd.read_csv(path)
     timestamp_removed = all_data_df.drop(["timestamp"], axis=1)
 
@@ -122,12 +122,17 @@ def plot_transformation(path:str):
         acceleration_transformed.append(transformation(row["acceleration_x"], row["acceleration_y"], row["acceleration_z"]))
         gyroscope_transformed.append(transformation(row["gyroscope_x"], row["gyroscope_y"], row["gyroscope_z"]))
 
-    plt.plot(acceleration_transformed, label= "Acceleration Vector")
-    #plt.plot(gyroscope_transformed, label="Gyroscope Vector")
-    plt.title(path)
+    plt.figure(figsize=(5.5,4))
+    print(np.std(acceleration_transformed[1:75]))
+    plt.plot(acceleration_transformed[0:75], label= "Acceleration Magnitude")
+    #plt.plot(gyroscope_transformed[0:75], label="Acceleration Magnitude")
+    plt.title(title)
     plt.legend()
+    plt.xlabel("Number of time entries")
+    plt.ylim((8.9,9.3))
+
     plt.grid()
     plt.show()
 
-#plot_transformation("./data/moving_when_starting.csv")
-#plot_transformation("./data/still_when_starting.csv")
+plot_transformation("./data/moving_when_starting.csv", "Still sensor readings when sensor \n was intialized with movement")
+plot_transformation("./data/still_when_starting.csv", "Still sensor readings when sensor \n was intialized without movement")
