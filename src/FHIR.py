@@ -98,7 +98,7 @@ def get_random_patient():
         "age": details["age"],
         "medications": list(details["medications"]) or ["None"],
         "careplans": list(details["careplans"]) or ["None"],
-        "contact": "benjaminp1997@hotmail.com"
+        "contact": "ENTER E-MAIL HERE"
     }
 
     return patient_info
